@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Struk Invoice</title>
+<style>
+  body { font-family: Arial,sans-serif; margin:0; padding:0; }
+  header, footer { background:#007BFF; color:white; padding:20px; text-align:center; }
+  main { padding:20px; }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  th, td { border:1px solid #ccc; padding:10px; text-align:left; }
+  th { background:#007BFF; color:white; }
+  td img { width:80px; }
+  h2,h3 { margin:5px 0; }
+  .total { font-weight:bold; margin-top:10px; }
+</style>
+</head>
+<body>
+<header>Struk Invoice</header>
+<main>
+  <h2>Detail Pemesanan</h2>
+  <table id="tabelInvoice">
+    <thead>
+      <tr>
+        <th>Gambar</th>
+        <th>Nama</th>
+        <th>Harga</th>
+        <th>Jumlah</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h3 id="totalBelanja">Total Belanja: Rp0</h3>
+  <h3 id="diskon">Diskon: Rp0</h3>
+  <h3 id="totalAkhir">Total Akhir: Rp0</h3>
+
+  <h2>Data Pemesan</h2>
+  <p id="dataPemesan"></p>
+
+</main>
+<footer>Footer</footer>
+
+<script>
+  // Ambil data dari localStorage
+  const keranjang = JSON.parse(localStorage.getItem('keranjang')) || [];
+  const dataPemesan = JSON.parse(localStorage.getItem('dataPemesan')) || {};
+
+  const tbody = document.querySelector("#tabelInvoice tbody");
+  let totalBelanja = 0;
+
+  keranjang.forEach(p => {
+    let row = document.createElement("tr");
+    let subtotal = p.harga * p.jumlah;
+    totalBelanja += subtotal;
+    row.innerHTML = `
+      <td><img src="${p.gambar}" alt="${p.nama}"></td>
+      <td>${p.nama}</td>
+      <td>Rp${p.harga.toLocaleString()}</td>
+      <td>${p.jumlah}</td>
+      <td>Rp${subtotal.toLocaleString()}</td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // Hitung diskon
+  let diskon = 0;
+  if(totalBelanja >= 500000){
+    diskon = totalBelanja * 0.1;
+  }
+  const totalAkhir = totalBelanja - diskon;
+
+  document.getElementById('totalBelanja').innerText = `Total Belanja: Rp${totalBelanja.toLocaleString()}`;
+  document.getElementById('diskon').innerText = `Diskon: Rp${diskon.toLocaleString()}`;
+  document.getElementById('totalAkhir').innerText = `Total Akhir: Rp${totalAkhir.toLocaleString()}`;
+
+  // Tampilkan data pemesan
+  let pemesanText = `
+    <strong>Nama:</strong> ${dataPemesan.nama || '-'}<br>
+    <strong>Alamat:</strong> ${dataPemesan.alamat || '-'}<br>
+    <strong>Email:</strong> ${dataPemesan.email || '-'}
+  `;
+  document.getElementById('dataPemesan').innerHTML = pemesanText;
+
+  // Bersihkan keranjang setelah menampilkan struk
+  localStorage.removeItem('keranjang');
+  localStorage.removeItem('dataPemesan');
+</script>
+</body>
+</html>
